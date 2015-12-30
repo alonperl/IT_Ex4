@@ -32,7 +32,7 @@ function start(port,rootFolder,callback) {
 		//to prevent memory leak detection
 		socket.setMaxListeners(0);
 
-		socket.setTimeout(2500);
+		socket.setTimeout(2000);
 
 		//keep track of this socket
 		sockets.push(socket);
@@ -84,7 +84,7 @@ function start(port,rootFolder,callback) {
 		callback(errorObj);
 	});
 
-	// TODO: add stop(callback) function to server object before returning.
+	// 1TODO: add stop(callback) function to server object before returning.
 	serverObj.stop = function (callback) {
 		//close all the sockets. Ensures the server hard closes, rather than
 		//just stopping to accept new connections, when server.close is called.
@@ -104,8 +104,6 @@ function start(port,rootFolder,callback) {
 
 //export the method so it's publicly accessible upon requiring the module.
 exports.start = start;
-
-start(8000,'potato',function(){});
 
 //from ryan dahl:
 
