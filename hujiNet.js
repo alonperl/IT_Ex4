@@ -44,7 +44,8 @@ exports.handleRequest = function(data, socket, rootFolder) {
 }
 
 function handleResponse(uriFullPath, request,socket) {
-    fs.stat(uriFullPath, function(err, stats)) {
+
+    fs.stat(uriFullPath, function(err, stats) {
         if(!err && stats.isFile()) {
 
             var types = new TypeMap();
@@ -63,11 +64,10 @@ function handleResponse(uriFullPath, request,socket) {
                 sendResponse(response, socket);
             }
         }
-
-
         //if we're here, error handling. TODO
-    }
+    } )
 }
+
 function sendResponse(response, socket) {
     //
     var header = response.toString();
