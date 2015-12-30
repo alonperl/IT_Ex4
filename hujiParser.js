@@ -34,36 +34,48 @@ function HttpRequest() {
 }
 
 exports.parseRequest = function(data) {
+    //console.log("parseRequest" + "\n" + data);
     var requestObj = new HttpRequest();
     var groups = data.split(GROUPS_SEP);
     var meta_data = groups[0].split(NEW_LINE);
     var request_desc = meta_data[0].split(' ');
     if((requestsMethods.indexOf(request_desc[METHOD_INDEX]) > -1)){
         requestObj.method = request_desc[METHOD_INDEX];
+
     } else {
+        console.log("error 1");
         throw error_bad_request_format;
     }
+    //console.log(requestObj.method);
     requestObj.uri = request_desc[URI_INDEX].replace(/\//g, path.sep);
     var vid = request_desc[VERSION_INDEX].split('/');
     if(vid[0] === 'HTTP' && (versionId.indexOf(vid[1]) > -1)) {
             requestObj.ver = vid[1];
     } else {
+        console.log("error 2");
         throw error_bad_request_format;
     }
+
+    //problem is in the for loop, throwing error.
     for(i = 1; i < meta_data.length; i++) {
         var header_line = meta_data[i].split(': ');
-        header[header_line[0]] = header_line[1];
+
+        requestObj.header[header_line[0]] = header_line[1];
+
     }
+       
+
     requestObj.body = '';
     // reunion groups
     for(i = 1; i < groups.length - 1; i++) {
         requestObj.body = requestObj.body + groups[i] + GROUPS_SEP;
     }
     requestObj.body = requestObj.body + groups[i];
+
     return requestObj;
 }
 
-function HttpResponse(version, status,connection ,contentType,contentLen,fd) {
+exports.HttpResponse = function(version, status,connection ,contentType,contentLen,fd) {
     this.version = version;
     this.status = status;
     this.connection = connection;

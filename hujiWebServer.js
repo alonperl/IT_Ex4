@@ -2,6 +2,7 @@
 //Author: James Adams
 
 var net = require('net');
+var hujiNet = require('./hujiNet');
 
 //CHECK
 //var hujinet = require('hujinet');
@@ -11,7 +12,7 @@ var net = require('net');
 sockets=[];
 
 function start(port,rootFolder,callback) {
-	console.log('potato2');
+	console.log('Starting server.');
 	var serverObj = { };
 
 	//using https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperty
@@ -26,9 +27,8 @@ function start(port,rootFolder,callback) {
 
 
 	//create the server (can this be done with a non-anonymous function?)
-	var server = net.createServer(function(socket) {
-		console.log('potato1');
-
+	var server = net.createServer( function(socket) {
+		socket.setEncoding("utf8");
 		//to prevent memory leak detection
 		socket.setMaxListeners(0);
 
@@ -41,11 +41,10 @@ function start(port,rootFolder,callback) {
 		socket.on('data', function(data) {
 			//if we're here, we're receiving data from the user/socket.
 			//so, handle the data.
-
 			//send the data to hujinet.
 			//TODO: add any extra parameters handleRequest needs.
-			console.log(data);
-			hujinet.handleRequest(data);
+
+			hujiNet.handleRequest(data, socket,rootFolder);
 		});
 
 		socket.on('end',function() {

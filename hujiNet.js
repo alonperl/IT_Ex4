@@ -4,7 +4,7 @@
 
 var hujiParser = require('./hujiParser.js');
 var net = require('net');
-var fs = require('fs')
+var fs = require('fs');
 var path = require('path');
 
 //status
@@ -26,7 +26,9 @@ exports.handleRequest = function(data, socket, rootFolder) {
     try {
         var request = hujiParser.parseRequest(data.toString().trim());
         //TODO check if this fucks with asynchronicity
-        if (request.method!=="GET") errorResponse(500, socket);
+        if (request.method!=="GET")  {
+            errorResponse(500, socket);
+        }
         else {
             var rootRealpath = fs.realpathSync(rootFolder);
             var uriFullPath = path.normalize(rootRealpath + path.sep + request.uri);
@@ -44,14 +46,14 @@ exports.handleRequest = function(data, socket, rootFolder) {
 }
 
 function handleResponse(uriFullPath, request,socket) {
-
+    //console.log("handleResponse");
     fs.stat(uriFullPath, function(err, stats) {
         if(!err && stats.isFile()) {
-
             var types = new TypeMap();
-            var extension = uriFullPath.substr(uriFullPath.lastIndexOf('.'),
-                                                        uriFullPath.length());
-            if(extension in types){
+            var extension = uriFullPath.substr(uriFullPath.lastIndexOf('.')+1,
+                                                        uriFullPath.length);
+
+            if(extension in types) {
                 var fd = fs.createReadStream(uriFullPath);
                 var contentType=types[extension];
                 var connection;
@@ -60,9 +62,14 @@ function handleResponse(uriFullPath, request,socket) {
                 }
                 else connection=null;
                 var response = new hujiParser.HttpResponse(request.ver, success_status, connection, contentType,
-                                                stats.length, fd);
+                                                stats.size, fd);
+
                 sendResponse(response, socket);
             }
+        }
+
+        else {
+            errorResponse(404,socket);
         }
         //if we're here, error handling. TODO
     } )
@@ -72,7 +79,7 @@ function sendResponse(response, socket) {
     //
     var header = response.toString();
 
-    if (socket.writeable) {
+    if (socket.writable) {
         socket.write(header, function() {
             //need to check if socket is writeable still?
 
@@ -108,6 +115,7 @@ function errorResponse(error_number, socket) {
 
             var response = new hujiParser.HttpResponse('1.0',error_number, null, type['html'],
                                                         stats.size,fd);
+
             sendResponse(response,socket);
         }
 
