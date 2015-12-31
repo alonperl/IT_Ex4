@@ -4,16 +4,12 @@
 var net = require('net');
 var hujiNet = require('./hujiNet');
 
-//CHECK
-//var hujinet = require('hujinet');
-
-
 //array to keep track of sockets
 sockets=[];
 
 function start(port,rootFolder,callback) {
 	console.log('Starting server.');
-	var serverObj = { };
+	var serverObj={ };
 
 	//using https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperty
 	//adding the immutable (read-only) properties. 
@@ -28,22 +24,23 @@ function start(port,rootFolder,callback) {
 
 	//create the server (can this be done with a non-anonymous function?)
 	var server = net.createServer( function(socket) {
+		//since we're dealing with plain text requests, not hexadecimal
 		socket.setEncoding("utf8");
+
 		//to prevent memory leak detection
 		socket.setMaxListeners(0);
 
+		//2s according to project spec
 		socket.setTimeout(2000);
 
 		//keep track of this socket
 		sockets.push(socket);
 
 		//event handlers
+
 		socket.on('data', function(data) {
 			//if we're here, we're receiving data from the user/socket.
-			//so, handle the data.
-			//send the data to hujinet.
-			//TODO: add any extra parameters handleRequest needs.
-
+			//so, handle the data, sending the data to hujinet.
 			hujiNet.handleRequest(data, socket,rootFolder);
 		});
 
@@ -70,20 +67,19 @@ function start(port,rootFolder,callback) {
 	//send the server with the serverobj which will be returned.
 	//This will allow the server to be closed.
 	serverObj.server=server;
+
 	//same as previously, but on a server level:
 	server.setMaxListeners(0);
 
-	//add callback functionality. (is default ip address okay? maybe have to add so you can add callback (Default params.))
 	server.listen(port);
 
 	//error handling if server receives an error event.
 	server.on('error',function(errorObj) {
-		//TODO something with the error. callback stuff
+
 		//note, 'close' event will be called directly following this.
 		callback(errorObj);
 	});
 
-	// 1TODO: add stop(callback) function to server object before returning.
 	serverObj.stop = function (callback) {
 		//close all the sockets. Ensures the server hard closes, rather than
 		//just stopping to accept new connections, when server.close is called.
@@ -95,27 +91,8 @@ function start(port,rootFolder,callback) {
 			callback();
 		});
 	};
-	//return serverObj;
+	return serverObj;
 };
-
-
-
 
 //export the method so it's publicly accessible upon requiring the module.
 exports.start = start;
-
-//from ryan dahl:
-
-
-// var net  = require('net');
-
-
-// var server = net.createServer(function(socket) {
-// 	socket.write("Hello ");
-// 	socket.write("world.");
-// 	socket.on('data', function(data) {
-// 		console.log(data);
-// 	});
-// });
-
-// server.listen(8000);
