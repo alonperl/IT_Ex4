@@ -21,7 +21,6 @@ function start(port,rootFolder,callback) {
 		value: rootFolder
 	});
 
-
 	//create the server (can this be done with a non-anonymous function?)
 	var server = net.createServer( function(socket) {
 		//since we're dealing with plain text requests, not hexadecimal
@@ -63,7 +62,6 @@ function start(port,rootFolder,callback) {
 		});
 	});
 
-
 	//send the server with the serverobj which will be returned.
 	//This will allow the server to be closed.
 	serverObj.server=server;
@@ -71,8 +69,7 @@ function start(port,rootFolder,callback) {
 	//same as previously, but on a server level:
 	server.setMaxListeners(0);
 
-	server.listen(port);
-
+	server.listen(port, callback);
 	//error handling if server receives an error event.
 	server.on('error',function(errorObj) {
 
@@ -87,8 +84,7 @@ function start(port,rootFolder,callback) {
 			sockets[i].destroy();
 		};
 		this.server.close(function () {
-			console.log('server is closed.')
-			callback();
+			console.log('server is closed.');
 		});
 	};
 	return serverObj;

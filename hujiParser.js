@@ -84,10 +84,10 @@ exports.HttpResponse = function(version, status,connection ,contentType,contentL
     this.body = fd;
     this.toString = function() {
         var stResponse = '';
-        stResponse = stResponse.concat(HTTP_PROTOCOL, this.version,' ',this.status, NEW_LINE);
-        stResponse = stResponse.concat('Contenct-Type', this.contentType, NEW_LINE);
-        stResponse = stResponse.concat('Contenct-Length', this.contentLen, GROUPS_SEP);
-        return stResponse;
+        return stResponse.concat('HTTP/', this.version,' ',this.status, NEW_LINE,
+                                       'Contenct-Type: ', this.contentType, NEW_LINE,
+                                       'Contenct-Length: ', this.contentLen, GROUPS_SEP);
+        //return stResponse;
     }
 }
 
